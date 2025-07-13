@@ -141,17 +141,22 @@ const ShiftManagementApp = () => {
     setSelectedDate(null);
   };
 
-  const calculateTotalHours = (employeeId) => {
-    let totalMinutes = 0;
-    Object.values(monthlyShifts).forEach(shift => {
-      if (shift.employee === employees.find(e => e.id === employeeId)?.name && shift.startTime && shift.endTime) {
-        const start = new Date(`2000-01-01T${shift.startTime}`);
-        const end = new Date(`2000-01-01T${shift.endTime}`);
-        totalMinutes += (end - start) / (1000 * 60);
+const calculateTotalHours = (employeeId) => {
+  let totalMinutes = 0;
+  Object.values(monthlyShifts).forEach(shift => {
+    if (shift.employee === employees.find(e => e.id === employeeId)?.name && 
+        shift.startTime && shift.endTime && shift.type !== 'off') {
+      const start = new Date(`2000-01-01T${shift.startTime}`);
+      const end = new Date(`2000-01-01T${shift.endTime}`);
+      const diffMinutes = (end - start) / (1000 * 60);
+      if (!isNaN(diffMinutes) && diffMinutes > 0) {
+        totalMinutes += diffMinutes;
       }
-    });
-    return Math.round(totalMinutes / 60 * 10) / 10;
-  };
+    }
+  });
+  const hours = totalMinutes / 60;
+  return isNaN(hours) ? 0 : Math.round(hours * 10) / 10;
+};
 
   const submitMonthlyShift = () => {
     const employeeShifts = Object.values(monthlyShifts).filter(
