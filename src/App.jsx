@@ -143,7 +143,14 @@ const ShiftManagementApp = () => {
 
 const calculateTotalHours = (employeeId) => {
   let totalMinutes = 0;
+  console.log('=== calculateTotalHours デバッグ ===');
+  console.log('employeeId:', employeeId);
+  console.log('employees:', employees);
+  console.log('monthlyShifts:', monthlyShifts);
+  
   Object.values(monthlyShifts).forEach(shift => {
+    console.log('処理中のシフト:', shift);
+    
     // 対象の従業員で、休み以外のシフトを対象にする
     if (shift.employee === employees.find(e => e.id === employeeId)?.name && 
         shift.type !== 'off') {
@@ -151,19 +158,25 @@ const calculateTotalHours = (employeeId) => {
       let startTime = '';
       let endTime = '';
       
+      console.log('対象シフト見つかりました:', shift.type);
+      
       // シフトタイプに応じて時間を設定
       if (shift.type === 'normal') {
         startTime = '09:00';
         endTime = '17:00';
+        console.log('通常勤務:', startTime, '-', endTime);
       } else if (shift.type === 'contract') {
         // 契約時間の場合は、従業員の契約時間を使用
         const employee = employees.find(e => e.id === employeeId);
+        console.log('契約シフト - 従業員情報:', employee);
         if (employee && employee.contractTime) {
           [startTime, endTime] = employee.contractTime.split('-');
+          console.log('契約時間:', startTime, '-', endTime);
         }
       } else if (shift.type === 'custom') {
         startTime = shift.startTime;
         endTime = shift.endTime;
+        console.log('自由時間:', startTime, '-', endTime);
       }
       
       // 時間計算
@@ -171,6 +184,7 @@ const calculateTotalHours = (employeeId) => {
         const start = new Date(`2000-01-01T${startTime}`);
         const end = new Date(`2000-01-01T${endTime}`);
         const diffMinutes = (end - start) / (1000 * 60);
+        console.log('計算結果:', diffMinutes, '分');
         if (!isNaN(diffMinutes) && diffMinutes > 0) {
           totalMinutes += diffMinutes;
         }
@@ -178,6 +192,8 @@ const calculateTotalHours = (employeeId) => {
     }
   });
   const hours = totalMinutes / 60;
+  console.log('合計:', hours, '時間');
+  console.log('=== デバッグ終了 ===');
   return isNaN(hours) ? 0 : Math.round(hours * 10) / 10;
 };
 
