@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, BarChart3, ChevronLeft, ChevronRight, Save, Eye, User } from 'lucide-react';
 
 const ShiftManagementApp = () => {
@@ -13,18 +13,39 @@ const ShiftManagementApp = () => {
   const [customEndTime, setCustomEndTime] = useState('17:00');
   const [showRules, setShowRules] = useState(false);
 
-  const employees = [
-    { id: 1, name: '田中太郎', contractTime: '10:00-16:00' },
-    { id: 2, name: '佐藤花子', contractTime: '08:00-17:00' },
-    { id: 3, name: '鈴木一郎', contractTime: '13:00-22:00' },
-    { id: 4, name: '山田美咲', contractTime: '09:00-15:00' },
-    { id: 5, name: '高橋健太', contractTime: '14:00-20:00' },
-    { id: 6, name: '渡辺智子', contractTime: '07:00-16:00' },
-    { id: 7, name: '中村雅人', contractTime: '11:00-19:00' },
-    { id: 8, name: '小林さくら', contractTime: '08:30-17:30' },
-    { id: 9, name: '加藤大輔', contractTime: '12:00-21:00' },
-    { id: 10, name: '吉田麻衣', contractTime: '09:30-18:30' }
-  ];
+ const [employees, setEmployees] = useState([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+
+  // Google Sheetsから従業員データを取得
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setIsLoadingEmployees(true);
+        const response = await fetch('https://script.google.com/macros/s/AKfycbx_PzsH7g8mbUPE5nqFf51trqznHgT8mwNoPD0sijmfxwAJtSgNbNX7q4FjbxJ0RdUnfA/exec');
+        const result = await response.json();
+        
+        if (result.success) {
+          setEmployees(result.employees);
+        } else {
+          console.error('従業員データ取得エラー:', result.message);
+          // フォールバック: 最小限のテストデータ
+          setEmployees([
+            { id: 'test', name: 'テストユーザー', contractTime: '09:00-17:00' }
+          ]);
+        }
+      } catch (error) {
+        console.error('通信エラー:', error);
+        // フォールバック: 最小限のテストデータ
+        setEmployees([
+          { id: 'test', name: 'テストユーザー', contractTime: '09:00-17:00' }
+        ]);
+      } finally {
+        setIsLoadingEmployees(false);
+      }
+    };
+    
+    fetchEmployees();
+  }, []);
 
   const shiftTypes = [
     { id: 'normal', name: '通常勤務', time: '09:00-17:00', color: 'bg-blue-500' },
@@ -327,25 +348,38 @@ const confirmSubmit = async () => {
     );
   };
 
-  const renderEmployeeSelect = () => (
+const renderEmployeeSelect = () => (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
       <div className="flex items-center gap-2 mb-6">
         <User className="text-blue-600" size={24} />
         <h2 className="text-xl font-bold text-gray-800">従業員選択</h2>
       </div>
       
-      <div className="space-y-3">
-        {employees.map(employee => (
-          <button
-            key={employee.id}
-            onClick={() => handleEmployeeSelect(employee)}
-            className="w-full p-4 text-left bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 transition-colors"
-          >
-            <div className="font-semibold text-gray-800">{employee.name}</div>
-            <div className="text-sm text-gray-600">契約時間: {employee.contractTime}</div>
-          </button>
-        ))}
-      </div>
+      {isLoadingEmployees ? (
+        <div className="text-center py-8">
+          <div className="text-gray-500">従業員データを読み込み中...</div>
+        </div>
+      ) : employees.length === 0 ? (
+        <div className="text-center py-8 text-red-500">
+          従業員データが見つかりません
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {employees.map(employee => (
+            <button
+              key={employee.id}
+              onClick={() => handleEmployeeSelect(employee)}
+              className="w-full p-4 text-left bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 transition-colors"
+            >
+              <div className="font-semibold text-gray-800">{employee.name}</div>
+              <div className="text-sm text-gray-600">契約時間: {employee.contractTime}</div>
+              {employee.department && (
+                <div className="text-xs text-gray-500">所属: {employee.department}</div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 
