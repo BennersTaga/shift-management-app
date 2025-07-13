@@ -172,7 +172,7 @@ const confirmSubmit = async () => {
   );
 
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbx_PzsH7g8mbUPE5nqFf51trqznHgT8mwNoPD0sijmfxwAJtSgNbNX7q4FjbxJ0RdUnfA/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
