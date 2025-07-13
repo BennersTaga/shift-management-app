@@ -21,7 +21,7 @@ const ShiftManagementApp = () => {
     const fetchEmployees = async () => {
       try {
         setIsLoadingEmployees(true);
-        const response = await fetch('https://script.google.com/macros/s/AKfycbx_PzsH7g8mbUPE5nqFf51trqznHgT8mwNoPD0sijmfxwAJtSgNbNX7q4FjbxJ0RdUnfA/exec');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec');
         const result = await response.json();
         
         if (result.success) {
