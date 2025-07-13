@@ -145,25 +145,51 @@ const ShiftManagementApp = () => {
     setCurrentView('confirm');
   };
 
-  const confirmSubmit = () => {
-    const employeeShifts = Object.values(monthlyShifts).filter(
-      shift => shift.employee === currentEmployee.name
-    );
+const confirmSubmit = async () => {
+  const employeeShifts = Object.values(monthlyShifts).filter(
+    shift => shift.employee === currentEmployee.name
+  );
 
-    const newShifts = employeeShifts.map(shift => ({
-      id: Date.now() + Math.random(),
-      employee: shift.employee,
-      date: shift.date,
-      startTime: shift.startTime || '',
-      endTime: shift.endTime || '',
-      type: shift.type
-    }));
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbx_PzsH7g8mbUPE5nqFf51trqznHgT8mwNoPD0sijmfxwAJtSgNbNX7q4FjbxJ0RdUnfA/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        employeeId: currentEmployee.id,
+        shifts: employeeShifts.map(shift => ({
+          date: shift.date,
+          type: shift.type,
+          startTime: shift.startTime,
+          endTime: shift.endTime
+        }))
+      })
+    });
 
-    setShifts(prev => [...prev.filter(s => s.employee !== currentEmployee.name), ...newShifts]);
-    alert(`${currentEmployee.name}さんの月間シフトが登録されました！`);
-    setCurrentView('employee-select');
-    setCurrentEmployee(null);
-  };
+    const result = await response.json();
+    
+    if (result.success) {
+      alert(`${currentEmployee.name}さんの月間シフトが登録されました！`);
+      setCurrentView('employee-select');
+      setCurrentEmployee(null);
+      const newShifts = employeeShifts.map(shift => ({
+        id: Date.now() + Math.random(),
+        employee: shift.employee,
+        date: shift.date,
+        startTime: shift.startTime || '',
+        endTime: shift.endTime || '',
+        type: shift.type
+      }));
+      setShifts(prev => [...prev.filter(s => s.employee !== currentEmployee.name), ...newShifts]);
+    } else {
+      alert('エラーが発生しました: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Submit error:', error);
+    alert('通信エラーが発生しました');
+  }
+};
 
   const cancelSubmit = () => {
     setCurrentView('input');
