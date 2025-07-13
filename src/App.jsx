@@ -144,13 +144,36 @@ const ShiftManagementApp = () => {
 const calculateTotalHours = (employeeId) => {
   let totalMinutes = 0;
   Object.values(monthlyShifts).forEach(shift => {
+    // 対象の従業員で、休み以外のシフトを対象にする
     if (shift.employee === employees.find(e => e.id === employeeId)?.name && 
-        shift.startTime && shift.endTime && shift.type !== 'off') {
-      const start = new Date(`2000-01-01T${shift.startTime}`);
-      const end = new Date(`2000-01-01T${shift.endTime}`);
-      const diffMinutes = (end - start) / (1000 * 60);
-      if (!isNaN(diffMinutes) && diffMinutes > 0) {
-        totalMinutes += diffMinutes;
+        shift.type !== 'off') {
+      
+      let startTime = '';
+      let endTime = '';
+      
+      // シフトタイプに応じて時間を設定
+      if (shift.type === 'normal') {
+        startTime = '09:00';
+        endTime = '17:00';
+      } else if (shift.type === 'contract') {
+        // 契約時間の場合は、従業員の契約時間を使用
+        const employee = employees.find(e => e.id === employeeId);
+        if (employee && employee.contractTime) {
+          [startTime, endTime] = employee.contractTime.split('-');
+        }
+      } else if (shift.type === 'custom') {
+        startTime = shift.startTime;
+        endTime = shift.endTime;
+      }
+      
+      // 時間計算
+      if (startTime && endTime) {
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const diffMinutes = (end - start) / (1000 * 60);
+        if (!isNaN(diffMinutes) && diffMinutes > 0) {
+          totalMinutes += diffMinutes;
+        }
       }
     }
   });
