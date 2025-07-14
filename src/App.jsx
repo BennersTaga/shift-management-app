@@ -14,7 +14,8 @@ const ShiftManagementApp = () => {
   const [showRules, setShowRules] = useState(false);
 
  const [employees, setEmployees] = useState([]);
-  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+const [systemSettings, setSystemSettings] = useState(null);
 
   // Google Sheetsから従業員データを取得
   useEffect(() => {
@@ -24,9 +25,10 @@ const ShiftManagementApp = () => {
         const response = await fetch('https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec');
         const result = await response.json();
         
-        if (result.success) {
-          setEmployees(result.employees);
-        } else {
+     if (result.success) {
+  setEmployees(result.employees);
+  setSystemSettings(result.systemSettings);
+} else {
           console.error('従業員データ取得エラー:', result.message);
           // フォールバック: 最小限のテストデータ
           setEmployees([
@@ -61,13 +63,28 @@ const ShiftManagementApp = () => {
     }
   }
 
-  const isInputPeriodValid = () => {
-    return true;
-  };
+const isInputPeriodValid = () => {
+  if (!systemSettings) return true;
+  
+  const now = new Date();
+  const currentDate = now.getDate();
+  
+  return currentDate >= systemSettings.inputStartDate && 
+         currentDate <= systemSettings.inputEndDate;
+};
 
   const getInputPeriodMessage = () => {
-    return "テスト期間中 - 入力可能です";
-  };
+  if (!systemSettings) return "設定読み込み中...";
+  
+  const now = new Date();
+  const currentDate = now.getDate();
+  
+  if (isInputPeriodValid()) {
+    return `入力期間中です（${systemSettings.inputStartDate}日〜${systemSettings.inputEndDate}日）`;
+  } else {
+    return `入力期間外です（${systemSettings.inputStartDate}日〜${systemSettings.inputEndDate}日に入力可能）`;
+  }
+};
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
