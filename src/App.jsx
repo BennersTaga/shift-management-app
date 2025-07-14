@@ -200,16 +200,33 @@ const calculateTotalHours = (employeeId) => {
         console.log('自由時間:', startTime, '-', endTime);
       }
       
-      // 時間計算
-      if (startTime && endTime) {
-        const start = new Date(`2000-01-01T${startTime}`);
-        const end = new Date(`2000-01-01T${endTime}`);
-        const diffMinutes = (end - start) / (1000 * 60);
-        console.log('計算結果:', diffMinutes, '分');
-        if (!isNaN(diffMinutes) && diffMinutes > 0) {
-          totalMinutes += diffMinutes;
-        }
-      }
+// 時間計算
+if (startTime && endTime) {
+  // 時間フォーマットを統一 (HH:MM形式に変換)
+  const formatTime = (time) => {
+    const parts = time.split(':');
+    const hours = parts[0].padStart(2, '0');
+    const minutes = parts[1] || '00';
+    return `${hours}:${minutes.padStart(2, '0')}`;
+  };
+  
+  const formattedStart = formatTime(startTime);
+  const formattedEnd = formatTime(endTime);
+  
+  console.log('フォーマット前:', startTime, '-', endTime);
+  console.log('フォーマット後:', formattedStart, '-', formattedEnd);
+  
+  const start = new Date(`2000-01-01T${formattedStart}`);
+  const end = new Date(`2000-01-01T${formattedEnd}`);
+  
+  console.log('Date オブジェクト:', start, end);
+  
+  const diffMinutes = (end - start) / (1000 * 60);
+  console.log('計算結果:', diffMinutes, '分');
+  if (!isNaN(diffMinutes) && diffMinutes > 0) {
+    totalMinutes += diffMinutes;
+  }
+}
     }
   });
   const hours = totalMinutes / 60;
