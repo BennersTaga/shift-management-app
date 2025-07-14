@@ -543,14 +543,44 @@ const renderEmployeeSelect = () => (
           ))}
         </div>
 
-        <div className="mb-4 flex justify-center">
-          <button
-            onClick={() => setShowRules(true)}
-            className="text-xs text-blue-600 hover:text-blue-800 underline"
-          >
-            シフトタイプの説明を見る
-          </button>
-        </div>
+<div className="mb-4 p-4 bg-gray-50 rounded-lg">
+  <h3 className="text-sm font-semibold text-gray-800 mb-3">シフトタイプ説明</h3>
+  <div className="grid grid-cols-2 gap-3 text-xs">
+    <div className="flex items-center gap-2">
+      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+      <div>
+        <div className="font-medium text-gray-800">通常勤務</div>
+        <div className="text-gray-600">9:00-17:00の固定勤務</div>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-2">
+      <div className="w-3 h-3 bg-green-500 rounded"></div>
+      <div>
+        <div className="font-medium text-gray-800">契約時間</div>
+        <div className="text-gray-600">あなたの契約時間での勤務</div>
+        <div className="text-xs text-gray-500">({currentEmployee?.contractTime})</div>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-2">
+      <div className="w-3 h-3 bg-purple-500 rounded"></div>
+      <div>
+        <div className="font-medium text-gray-800">自由時間</div>
+        <div className="text-gray-600">開始・終了時間を自由に設定</div>
+        <div className="text-xs text-gray-500">(6:00-23:30の間で30分刻み)</div>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-2">
+      <div className="w-3 h-3 bg-gray-400 rounded"></div>
+      <div>
+        <div className="font-medium text-gray-800">休み</div>
+        <div className="text-gray-600">勤務なし</div>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="grid grid-cols-7 gap-1">
           {Array(firstDayOfWeek).fill(null).map((_, index) => (
