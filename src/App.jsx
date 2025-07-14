@@ -457,14 +457,6 @@ const renderEmployeeSelect = () => (
         <h2 className="text-xl font-bold text-gray-800">従業員選択</h2>
       </div>
       
-      {/* 翻訳案内を追加 */}
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800 text-center">
-          🌐 他の言語で表示: 右クリック→「日本語に翻訳」<br/>
-          For other languages: Right click → "Translate to [Language]"
-        </p>
-      </div>
-      
       {isLoadingEmployees ? (
         <div className="text-center py-8">
           <div className="text-gray-500">従業員データを読み込み中...</div>
