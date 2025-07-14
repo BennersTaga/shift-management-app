@@ -871,37 +871,45 @@ const renderEmployeeSelect = () => (
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Users className="text-blue-600" size={24} />
-              シフト管理システム
-            </h1>
-            {currentView !== 'employee-select' && currentView !== 'confirm' && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setCurrentView('input')}
-                  className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                    currentView === 'input' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Calendar size={16} />
-                  シフト入力
-                </button>
-                <button
-                  onClick={() => setCurrentView('chart')}
-                  className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                    currentView === 'chart' 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Eye size={16} />
-                  管理画面
-                </button>
-              </div>
-            )}
-          </div>
+  <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+    <Users className="text-blue-600" size={24} />
+    シフト管理システム
+  </h1>
+  <div className="flex items-center gap-2">
+    <button 
+      onClick={() => alert('右クリック→「日本語に翻訳」を選択してください\nRight click → Select "Translate to [Language]"')}
+      className="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded hover:bg-blue-200 transition-colors"
+    >
+      🌐 翻訳 / Translate
+    </button>
+    {currentView !== 'employee-select' && currentView !== 'confirm' && (
+      <div className="flex gap-2">
+        <button
+          onClick={() => setCurrentView('input')}
+          className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+            currentView === 'input' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <Calendar size={16} />
+          シフト入力
+        </button>
+        <button
+          onClick={() => setCurrentView('chart')}
+          className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+            currentView === 'chart' 
+              ? 'bg-green-600 text-white' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          <Eye size={16} />
+          管理画面
+        </button>
+      </div>
+    )}
+  </div>
+</div>
         </div>
       </header>
 
