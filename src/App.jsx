@@ -510,38 +510,12 @@ const renderEmployeeSelect = () => (
         </div>
 
         {isInputPeriodValid() && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded-lg">
-            <p className="text-sm text-green-800">
-              {getInputPeriodMessage()}
-            </p>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
-            className="p-2 hover:bg-gray-100 rounded"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h2 className="text-xl font-bold text-gray-800">
-            {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
-          </h2>
-          <button
-            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
-            className="p-2 hover:bg-gray-100 rounded"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {weekDays.map(day => (
-            <div key={day} className="text-center text-xs font-medium text-gray-600 p-2">
-              {day}
-            </div>
-          ))}
-        </div>
+  <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded-lg">
+    <p className="text-sm text-green-800">
+      {getInputPeriodMessage()}
+    </p>
+  </div>
+)}
 
 <div className="mb-4 p-4 bg-gray-50 rounded-lg">
   <h3 className="text-sm font-semibold text-gray-800 mb-3">シフトタイプ説明</h3>
@@ -581,6 +555,32 @@ const renderEmployeeSelect = () => (
     </div>
   </div>
 </div>
+
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+            className="p-2 hover:bg-gray-100 rounded"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-xl font-bold text-gray-800">
+            {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
+          </h2>
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+            className="p-2 hover:bg-gray-100 rounded"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {weekDays.map(day => (
+            <div key={day} className="text-center text-xs font-medium text-gray-600 p-2">
+              {day}
+            </div>
+          ))}
+        </div>
 
         <div className="grid grid-cols-7 gap-1">
           {Array(firstDayOfWeek).fill(null).map((_, index) => (
