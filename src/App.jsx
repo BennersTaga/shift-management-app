@@ -528,23 +528,23 @@ const renderEmployeeSelect = () => (
     </div>
   </div>
   
-  <div className="flex items-center gap-2">
-    <div className="px-2 py-1 bg-green-500 text-white text-xs rounded">契約</div>
-    <div>
-      <div className="font-medium text-gray-800">契約時間</div>
-      <div className="text-gray-600">あなたの契約時間での勤務</div>
-      <div className="text-xs text-gray-500">({currentEmployee?.contractTime})</div>
-    </div>
+<div className="flex items-start gap-2">
+  <div className="px-2 py-1 bg-green-500 text-white text-xs rounded flex-shrink-0">契約</div>
+  <div>
+    <div className="font-medium text-gray-800">契約時間</div>
+    <div className="text-gray-600">あなたの契約時間での勤務</div>
+    <div className="text-xs text-gray-500">({currentEmployee?.contractTime})</div>
   </div>
-  
-  <div className="flex items-center gap-2">
-    <div className="px-2 py-1 bg-purple-500 text-white text-xs rounded">自由</div>
-    <div>
-      <div className="font-medium text-gray-800">自由時間</div>
-      <div className="text-gray-600">開始・終了時間を自由に設定</div>
-      <div className="text-xs text-gray-500">(6:00-23:30の間で30分刻み)</div>
-    </div>
+</div>
+
+<div className="flex items-start gap-2">
+  <div className="px-2 py-1 bg-purple-500 text-white text-xs rounded flex-shrink-0">自由</div>
+  <div>
+    <div className="font-medium text-gray-800">自由時間</div>
+    <div className="text-gray-600">開始・終了時間を自由に設定</div>
+    <div className="text-xs text-gray-500">(6:00-23:30の間で30分刻み)</div>
   </div>
+</div>
   
   <div className="flex items-center gap-2">
     <div className="px-2 py-1 bg-gray-400 text-white text-xs rounded">休み</div>
