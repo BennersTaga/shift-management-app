@@ -95,35 +95,56 @@ const ShiftManagementApp = () => {
     return monthlyShifts[`${employeeId}-${dateStr}`];
   };
 
-  const setShiftForDate = (date, shiftType, startTime = '', endTime = '') => {
-    const dateStr = formatDate(date);
-    const employeeId = currentEmployee?.id;
-    const key = `${employeeId}-${dateStr}`;
-    
-    setMonthlyShifts(prev => ({
-      ...prev,
-      [key]: { type: shiftType, startTime, endTime, date: dateStr, employee: currentEmployee.name }
-    }));
-  };
+const setShiftForDate = (date, shiftType, startTime = '', endTime = '') => {
+  const dateStr = formatDate(date);
+  const employeeId = currentEmployee?.id;
+  const key = `${employeeId}-${dateStr}`;
+  
+  console.log('=== setShiftForDate デバッグ ===');
+  console.log('日付:', dateStr);
+  console.log('シフトタイプ:', shiftType);
+  console.log('開始時間:', startTime);
+  console.log('終了時間:', endTime);
+  console.log('キー:', key);
+  
+  const shiftData = { type: shiftType, startTime, endTime, date: dateStr, employee: currentEmployee.name };
+  console.log('保存するシフトデータ:', shiftData);
+  
+  setMonthlyShifts(prev => ({
+    ...prev,
+    [key]: shiftData
+  }));
+  console.log('=== setShiftForDate 終了 ===');
+};
 
   const handleEmployeeSelect = (employee) => {
     setCurrentEmployee(employee);
     setCurrentView('input');
   };
 
-  const handleShiftTypeSelect = (date, shiftType) => {
-    if (shiftType === 'normal') {
-      setShiftForDate(date, shiftType, '09:00', '17:00');
-    } else if (shiftType === 'contract') {
-      const [start, end] = currentEmployee.contractTime.split('-');
-      setShiftForDate(date, shiftType, start, end);
-    } else if (shiftType === 'off') {
-      setShiftForDate(date, shiftType);
-    } else if (shiftType === 'custom') {
-      setSelectedDate(date);
-      setShowTimeModal(true);
-    }
-  };
+const handleShiftTypeSelect = (date, shiftType) => {
+  console.log('=== handleShiftTypeSelect デバッグ ===');
+  console.log('選択されたシフトタイプ:', shiftType);
+  console.log('現在の従業員:', currentEmployee);
+  
+  if (shiftType === 'normal') {
+    setShiftForDate(date, shiftType, '09:00', '17:00');
+    console.log('通常勤務を設定: 09:00-17:00');
+  } else if (shiftType === 'contract') {
+    const [start, end] = currentEmployee.contractTime.split('-');
+    console.log('契約時間を分割:', start, '-', end);
+    setShiftForDate(date, shiftType, start, end);
+    console.log('契約シフトを設定:', start, '-', end);
+  } else if (shiftType === 'off') {
+    setShiftForDate(date, shiftType);
+    console.log('休みを設定');
+  } else if (shiftType === 'custom') {
+    setSelectedDate(date);
+    setShowTimeModal(true);
+    console.log('カスタム時間モーダルを表示');
+  }
+  console.log('=== デバッグ終了 ===');
+};
 
   const handleCustomTimeSubmit = () => {
     if (customStartTime >= customEndTime) {
