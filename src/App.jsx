@@ -254,21 +254,24 @@ const confirmSubmit = async () => {
   );
 
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        employeeId: currentEmployee.id,
-        shifts: employeeShifts.map(shift => ({
-          date: shift.date,
-          type: shift.type,
-          startTime: shift.startTime,
-          endTime: shift.endTime
-        }))
-      })
-    });
+const shiftData = {
+  employeeId: currentEmployee.id,
+  shifts: employeeShifts.map(shift => ({
+    date: shift.date,
+    type: shift.type,
+    startTime: shift.startTime,
+    endTime: shift.endTime
+  }))
+};
+
+const params = new URLSearchParams({
+  method: 'POST',
+  data: JSON.stringify(shiftData)
+});
+
+const response = await fetch(`https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec?${params}`, {
+  method: 'GET'
+});
 
     const result = await response.json();
     
