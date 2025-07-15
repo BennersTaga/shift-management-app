@@ -3,13 +3,10 @@ import { Calendar, Clock, Users, BarChart3, ChevronLeft, ChevronRight, Save, Eye
 
 const ShiftManagementApp = () => {
   const [currentView, setCurrentView] = useState('employee-select');
-  const [currentEmployee, setCurrentEmployee] = useState(null);
-  const [currentDate, setCurrentDate] = useState(() => {
-  const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  return nextMonth;
-});
-  const [shifts, setShifts] = useState([]);
+const [currentEmployee, setCurrentEmployee] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date()); // 元に戻す
+  const [targetDate, setTargetDate] = useState(null); // ★対象月を保存するStateを追加
+  const [shifts, setShifts] = useState([]);
   const [monthlyShifts, setMonthlyShifts] = useState({});
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -118,10 +115,54 @@ const setShiftForDate = (date, shiftType, startTime = '', endTime = '') => {
   console.log('=== setShiftForDate 終了 ===');
 };
 
-  const handleEmployeeSelect = (employee) => {
-    setCurrentEmployee(employee);
-    setCurrentView('input');
-  };
+const handleEmployeeSelect = (employee) => {
+    setCurrentEmployee(employee);
+    setCurrentView('month-select'); // ★'input' から 'month-select' へ変更
+  };
+
+const handleMonthSelect = (monthOffset) => {
+    const now = new Date();
+    const selectedMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    
+    setTargetDate(selectedMonth);
+    setCurrentDate(selectedMonth);
+    setCurrentView('input');
+  };
+
+  const renderMonthSelect = () => {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const monthAfterNext = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+
+    return (
+      <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg text-center">
+        <button
+          onClick={() => setCurrentView('employee-select')}
+          className="text-blue-600 text-sm mb-4"
+        >
+          ← 従業員選択に戻る
+        </button>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">
+          {currentEmployee?.name}さん
+        </h2>
+        <p className="text-gray-600 mb-6">何月分のシフトを入力しますか？</p>
+        <div className="space-y-3">
+          <button
+            onClick={() => handleMonthSelect(1)}
+            className="w-full p-4 text-lg bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+          >
+            {nextMonth.getFullYear()}年 {nextMonth.getMonth() + 1}月
+          </button>
+          <button
+            onClick={() => handleMonthSelect(2)}
+            className="w-full p-4 text-lg bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+          >
+            {monthAfterNext.getFullYear()}年 {monthAfterNext.getMonth() + 1}月
+          </button>
+        </div>
+      </div>
+    );
+  };
 
 const handleShiftTypeSelect = (date, shiftType) => {
   console.log('=== handleShiftTypeSelect デバッグ ===');
@@ -257,9 +298,11 @@ const confirmSubmit = async () => {
   setIsSubmitting(true); // ★処理の開始をセット
 
   try {
-    const shiftData = {
-      employeeId: currentEmployee.id,
-      shifts: employeeShifts.map(shift => ({
+const shiftData = {
+  employeeId: currentEmployee.id,
+  targetMonth: formatDate(targetDate), // ★対象月の情報を追加
+  shifts: employeeShifts.map(shift => ({
+//...
         date: shift.date,
         type: shift.type,
         startTime: shift.startTime,
@@ -934,9 +977,11 @@ const renderConfirmScreen = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {currentView === 'employee-select' && renderEmployeeSelect()}
-        {currentView === 'input' && renderCalendarInput()}
+<main className="max-w-7xl mx-auto px-4 py-6">
+        {currentView === 'employee-select' && renderEmployeeSelect()}
+        {currentView === 'month-select' && renderMonthSelect()}
+        {currentView === 'input' && renderCalendarInput()}
+//...
         {currentView === 'confirm' && renderConfirmScreen()}
         {currentView === 'chart' && renderGanttChart()}
         {renderTimeModal()}
