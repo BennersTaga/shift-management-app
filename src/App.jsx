@@ -490,7 +490,22 @@ const renderEmployeeSelect = () => (
       )}
     </div>
   );
-
+const isDateDisabled = (date) => {
+  // 条件1: 日曜日かどうか
+  if (date.getDay() === 0) {
+    return true;
+  }
+  
+  // 条件2: 祝日または個別休日に含まれるか
+  if (systemSettings && systemSettings.disabledDates) {
+    const dateStr = formatDate(date); // 既存のフォーマット関数を利用
+    if (systemSettings.disabledDates.includes(dateStr)) {
+      return true;
+    }
+  }
+  
+  return false;
+};
   const renderCalendarInput = () => {
     const days = getDaysInMonth(currentDate);
     const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
@@ -593,34 +608,40 @@ const renderEmployeeSelect = () => (
             <div key={`empty-${index}`} className="h-44"></div>
           ))}
           
-          {days.map(day => {
-            const shift = getShiftForDate(day);
-            const isToday = day.toDateString() === new Date().toDateString();
-            
-            return (
-              <div
-                key={day.toISOString()}
-                className={`h-44 border border-gray-200 rounded-lg p-1 ${
-                  isToday ? 'ring-2 ring-blue-400' : ''
-                }`}
-              >
+{days.map(day => {
+  const shift = getShiftForDate(day);
+  const isToday = day.toDateString() === new Date().toDateString();
+  const isDisabled = isDateDisabled(day); // ← この行を追加！
+
+  return (
+    <div
+      key={day.toISOString()}
+      className={`h-44 border border-gray-200 rounded-lg p-1 ${
+        isToday ? 'ring-2 ring-blue-400' : ''
+      } ${isDisabled ? 'bg-gray-100' : ''}`} // ← ここに追記！
+    >
                 <div className="text-xs font-medium text-gray-600 mb-1">
                   {day.getDate()}
                 </div>
                 <div className="space-y-1">
                   {shiftTypes.map(type => (
-                    <button
-                      key={type.id}
-                      onClick={() => handleShiftTypeSelect(day, type.id)}
-                      className={`w-full text-xs py-1 px-1 rounded text-white ${
-                        shift?.type === type.id ? type.color : 'bg-gray-300'
-                      }`}
-                    >
-                      {type.name === '契約時間' ? '契約' : 
-                       type.name === '通常勤務' ? '通常' :
-                       type.name === '自由時間' ? '自由' : '休み'}
-                    </button>
-                  ))}
+  <button
+    key={type.id}
+    onClick={() => handleShiftTypeSelect(day, type.id)}
+    disabled={isDisabled}
+    className={`w-full text-xs py-1 px-1 rounded text-white transition-colors ${
+      isDisabled
+        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+        : shift?.type === type.id
+        ? type.color
+        : 'bg-gray-300 hover:bg-gray-400'
+    }`}
+  >
+    {type.name === '契約時間' ? '契約' : 
+     type.name === '通常勤務' ? '通常' :
+     type.name === '自由時間' ? '自由' : '休み'}
+  </button>
+))}
                   {/* 自由時間の場合は時刻表示 */}
                   {shift?.type === 'custom' && shift.startTime && shift.endTime && (
                     <div className="text-xs text-gray-700 px-1 text-center bg-gray-100 rounded py-0.5 mt-1">
