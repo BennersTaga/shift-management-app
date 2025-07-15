@@ -16,6 +16,8 @@ const ShiftManagementApp = () => {
  const [employees, setEmployees] = useState([]);
 const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
 const [systemSettings, setSystemSettings] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // ← この行を追加
+
 
   // Google Sheetsから従業員データを取得
   useEffect(() => {
@@ -270,25 +272,27 @@ const confirmSubmit = async () => {
     shift => shift.employee === currentEmployee.name
   );
 
+  setIsSubmitting(true); // ★処理の開始をセット
+
   try {
-const shiftData = {
-  employeeId: currentEmployee.id,
-  shifts: employeeShifts.map(shift => ({
-    date: shift.date,
-    type: shift.type,
-    startTime: shift.startTime,
-    endTime: shift.endTime
-  }))
-};
+    const shiftData = {
+      employeeId: currentEmployee.id,
+      shifts: employeeShifts.map(shift => ({
+        date: shift.date,
+        type: shift.type,
+        startTime: shift.startTime,
+        endTime: shift.endTime
+      }))
+    };
 
-const params = new URLSearchParams({
-  method: 'POST',
-  data: JSON.stringify(shiftData)
-});
+    const params = new URLSearchParams({
+      method: 'POST',
+      data: JSON.stringify(shiftData)
+    });
 
-const response = await fetch(`https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec?${params}`, {
-  method: 'GET'
-});
+    const response = await fetch(`https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec?${params}`, {
+      method: 'GET'
+    });
 
     const result = await response.json();
     
@@ -311,6 +315,8 @@ const response = await fetch(`https://script.google.com/macros/s/AKfycbxOnFb08np
   } catch (error) {
     console.error('Submit error:', error);
     alert('通信エラーが発生しました');
+  } finally {
+    setIsSubmitting(false); // ★処理が完了したら必ずOFFにする
   }
 };
 
@@ -645,101 +651,119 @@ const renderEmployeeSelect = () => (
     );
   };
 
-  const renderConfirmScreen = () => {
-    const employeeShifts = Object.values(monthlyShifts).filter(
-      shift => shift.employee === currentEmployee.name
-    );
+const renderConfirmScreen = () => {
+  const employeeShifts = Object.values(monthlyShifts).filter(
+    shift => shift.employee === currentEmployee.name
+  );
 
-    const sortedShifts = employeeShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const sortedShifts = employeeShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const getShiftTypeDisplay = (shift) => {
-      switch (shift.type) {
-        case 'normal':
-          return { name: '通常勤務', time: '09:00-17:00', color: 'bg-blue-500' };
-        case 'contract':
-          return { name: '契約時間', time: `${shift.startTime}-${shift.endTime}`, color: 'bg-green-500' };
-        case 'custom':
-          return { name: '自由時間', time: `${shift.startTime}-${shift.endTime}`, color: 'bg-purple-500' };
-        case 'off':
-          return { name: '休み', time: '', color: 'bg-gray-400' };
-        default:
-          return { name: '未設定', time: '', color: 'bg-gray-300' };
-      }
-    };
+  const getShiftTypeDisplay = (shift) => {
+    switch (shift.type) {
+      case 'normal':
+        return { name: '通常勤務', time: '09:00-17:00', color: 'bg-blue-500' };
+      case 'contract':
+        return { name: '契約時間', time: `${shift.startTime}-${shift.endTime}`, color: 'bg-green-500' };
+      case 'custom':
+        return { name: '自由時間', time: `${shift.startTime}-${shift.endTime}`, color: 'bg-purple-500' };
+      case 'off':
+        return { name: '休み', time: '', color: 'bg-gray-400' };
+      default:
+        return { name: '未設定', time: '', color: 'bg-gray-300' };
+    }
+  };
 
-    return (
-      <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
-        <div className="flex items-center gap-2 mb-6">
-          <Eye className="text-blue-600" size={24} />
-          <h2 className="text-xl font-bold text-gray-800">シフト確認</h2>
+  return (
+    <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
+      <div className="flex items-center gap-2 mb-6">
+        <Eye className="text-blue-600" size={24} />
+        <h2 className="text-xl font-bold text-gray-800">シフト確認</h2>
+      </div>
+
+      <div className="mb-6">
+        <div className="text-lg font-semibold text-gray-800 mb-2">
+          {currentEmployee?.name}さんのシフト
+        </div>
+        <div className="text-sm text-gray-600 mb-4">
+          {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
         </div>
 
-        <div className="mb-6">
-          <div className="text-lg font-semibold text-gray-800 mb-2">
-            {currentEmployee?.name}さんのシフト
-          </div>
-          <div className="text-sm text-gray-600 mb-4">
-            {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
-          </div>
-
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {sortedShifts.map((shift, index) => {
-              const shiftDisplay = getShiftTypeDisplay(shift);
-              // 日付のズレを修正：UTC時間として正しく解釈
-              const [year, month, day] = shift.date.split('-').map(Number);
-              const date = new Date(year, month - 1, day);
-              const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
-              
-              return (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm font-medium text-gray-700">
-                      {date.getMonth() + 1}月{date.getDate()}日({dayOfWeek})
-                    </div>
-                    <div className={`px-2 py-1 rounded text-white text-xs ${shiftDisplay.color}`}>
-                      {shiftDisplay.name}
-                    </div>
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {sortedShifts.map((shift, index) => {
+            const shiftDisplay = getShiftTypeDisplay(shift);
+            const [year, month, day] = shift.date.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+            
+            return (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="text-sm font-medium text-gray-700">
+                    {date.getMonth() + 1}月{date.getDate()}日({dayOfWeek})
                   </div>
-                  <div className="text-sm text-gray-600">
-                    {shiftDisplay.time}
+                  <div className={`px-2 py-1 rounded text-white text-xs ${shiftDisplay.color}`}>
+                    {shiftDisplay.name}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div className="text-sm text-gray-600">
+                  {shiftDisplay.time}
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </div>
 
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-semibold text-gray-800 mb-2">月間労働時間</h3>
-          <div className="text-2xl font-bold text-blue-600">
-            {calculateTotalHours(currentEmployee?.id)}時間
-          </div>
+      <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+        <h3 className="font-semibold text-gray-800 mb-2">月間労働時間</h3>
+        <div className="text-2xl font-bold text-blue-600">
+          {calculateTotalHours(currentEmployee?.id)}時間
         </div>
+      </div>
 
+      {isSubmitting ? (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800 text-center animate-pulse">
+            ただいまシフトを提出しています...
+          </p>
+        </div>
+      ) : (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800 text-center">
             この内容でシフトを提出してもよろしいですか？
           </p>
         </div>
+      )}
 
-        <div className="flex gap-3">
-          <button
-            onClick={cancelSubmit}
-            className="flex-1 py-3 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            いいえ（修正する）
-          </button>
-          <button
-            onClick={confirmSubmit}
-            className="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Save size={20} />
-            はい（提出する）
-          </button>
-        </div>
+      <div className="flex gap-3">
+        <button
+          onClick={cancelSubmit}
+          disabled={isSubmitting}
+          className="flex-1 py-3 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
+        >
+          いいえ（修正する）
+        </button>
+        <button
+          onClick={confirmSubmit}
+          disabled={isSubmitting}
+          className="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-300 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span>提出中...</span>
+            </>
+          ) : (
+            <>
+              <Save size={20} />
+              <span>はい（提出する）</span>
+            </>
+          )}
+        </button>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const renderGanttChart = () => {
     const shiftsByDate = {};
