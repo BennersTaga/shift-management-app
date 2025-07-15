@@ -4,7 +4,11 @@ import { Calendar, Clock, Users, BarChart3, ChevronLeft, ChevronRight, Save, Eye
 const ShiftManagementApp = () => {
   const [currentView, setCurrentView] = useState('employee-select');
   const [currentEmployee, setCurrentEmployee] = useState(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+  const now = new Date();
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return nextMonth;
+});
   const [shifts, setShifts] = useState([]);
   const [monthlyShifts, setMonthlyShifts] = useState({});
   const [showTimeModal, setShowTimeModal] = useState(false);
@@ -65,28 +69,6 @@ const [systemSettings, setSystemSettings] = useState(null);
     }
   }
 
-const isInputPeriodValid = () => {
-  if (!systemSettings) return true;
-  
-  const now = new Date();
-  const currentDate = now.getDate();
-  
-  return currentDate >= systemSettings.inputStartDate && 
-         currentDate <= systemSettings.inputEndDate;
-};
-
-  const getInputPeriodMessage = () => {
-  if (!systemSettings) return "設定読み込み中...";
-  
-  const now = new Date();
-  const currentDate = now.getDate();
-  
-  if (isInputPeriodValid()) {
-    return `入力期間中です（${systemSettings.inputStartDate}日〜${systemSettings.inputEndDate}日）`;
-  } else {
-    return `入力期間外です（${systemSettings.inputStartDate}日〜${systemSettings.inputEndDate}日に入力可能）`;
-  }
-};
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -530,13 +512,7 @@ const isDateDisabled = (date) => {
           </div>
         </div>
 
-        {isInputPeriodValid() && (
-  <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded-lg">
-    <p className="text-sm text-green-800">
-      {getInputPeriodMessage()}
-    </p>
-  </div>
-)}
+
 
 <div className="mb-4 p-4 bg-gray-50 rounded-lg">
   <h3 className="text-sm font-semibold text-gray-800 mb-3">シフトタイプ説明</h3>
@@ -577,23 +553,23 @@ const isDateDisabled = (date) => {
 </div>
 </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
-            className="p-2 hover:bg-gray-100 rounded"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h2 className="text-xl font-bold text-gray-800">
-            {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
-          </h2>
-          <button
-            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
-            className="p-2 hover:bg-gray-100 rounded"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
+<div className="flex items-center justify-between mb-4">
+  <button
+    disabled
+    className="p-2 rounded text-gray-300 cursor-not-allowed"
+  >
+    <ChevronLeft size={20} />
+  </button>
+  <h2 className="text-xl font-bold text-gray-800">
+    {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
+  </h2>
+  <button
+    disabled
+    className="p-2 rounded text-gray-300 cursor-not-allowed"
+  >
+    <ChevronRight size={20} />
+  </button>
+</div>
 
         <div className="grid grid-cols-7 gap-1 mb-2">
           {weekDays.map(day => (
