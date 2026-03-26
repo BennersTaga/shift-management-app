@@ -25,7 +25,7 @@ const [systemSettings, setSystemSettings] = useState(null);
     const fetchEmployees = async () => {
       try {
         setIsLoadingEmployees(true);
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec');
+        const response = await fetch('/api/employees');
         const result = await response.json();
         
      if (result.success) {
@@ -310,13 +310,12 @@ const shiftData = {
       }))
     };
 
-    const params = new URLSearchParams({
+    const response = await fetch('/api/shifts', {
       method: 'POST',
-      data: JSON.stringify(shiftData)
-    });
-
-    const response = await fetch(`https://script.google.com/macros/s/AKfycbxOnFb08nprh73C4LeNNpyILYPeojZEQX_ypaERlCN4myKspZ_GYffyWbJdbwwcpNEscQ/exec?${params}`, {
-      method: 'GET'
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(shiftData)
     });
 
     const result = await response.json();
